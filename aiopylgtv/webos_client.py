@@ -5,6 +5,7 @@ import functools
 import json
 import logging
 import os
+import ssl
 from datetime import timedelta
 
 import numpy as np
@@ -183,9 +184,7 @@ class WebOsClient:
         return handshake
 
     async def connect_handler(self, res):
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
+        ssl_context = ssl.SSLContext()
 
         handler_tasks = set()
         ws = None
