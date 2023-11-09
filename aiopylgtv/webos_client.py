@@ -66,7 +66,7 @@ class WebOsClient:
     ):
         """Initialize the client."""
         self.ip = ip
-        self.port = 3000
+        self.port = 3001
         self.key_file_path = key_file_path
         self.client_key = client_key
         self.web_socket = None
@@ -183,6 +183,9 @@ class WebOsClient:
         return handshake
 
     async def connect_handler(self, res):
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
 
         handler_tasks = set()
         ws = None
@@ -190,10 +193,11 @@ class WebOsClient:
         try:
             ws = await asyncio.wait_for(
                 websockets.connect(
-                    f"ws://{self.ip}:{self.port}",
+                    f"wss://{self.ip}:{self.port}",
                     ping_interval=None,
                     close_timeout=self.timeout_connect,
                     max_size=None,
+                    ssl=ssl_context,
                 ),
                 timeout=self.timeout_connect,
             )
@@ -242,6 +246,7 @@ class WebOsClient:
                     inputsockpath,
                     ping_interval=None,
                     close_timeout=self.timeout_connect,
+                    ssl=ssl_context,
                 ),
                 timeout=self.timeout_connect,
             )
